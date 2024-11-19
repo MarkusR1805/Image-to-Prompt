@@ -1,0 +1,11 @@
+Beschreibe das Bild detailliert.
+
+Was sind die Hauptobjekte in diesem Bild?
+
+Welche Farben dominieren das Bild?
+
+Erstelle eine lustige Bildunterschrift.
+
+Create a creative prompt for text-to-image prompts from this text, without introduction, comments, tips or quotation marks, ending with a period.
+
+Creatively create a single text-to-image prompt, without introduction, comments, tips, or quotation marks, ending with a period.
