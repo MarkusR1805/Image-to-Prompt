@@ -2,15 +2,15 @@ import sys
 import ollama
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
                              QVBoxLayout, QWidget, QFileDialog, QComboBox,
-                             QTextEdit, QHBoxLayout, QScrollArea, QSpacerItem,QSizePolicy)
-from PyQt6.QtGui import QPixmap, QImage, QGuiApplication
+                             QTextEdit, QHBoxLayout, QSizePolicy)
+from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption
 from PyQt6.QtCore import Qt, QTimer
 from enum import Enum
 
 class CopyState(Enum):
-  READY = 0
-  SUCCESS = 1
-  ERROR = 2
+    READY = 0
+    SUCCESS = 1
+    ERROR = 2
 
 class ImageAnalyzerApp(QMainWindow):
     def __init__(self):
@@ -19,31 +19,23 @@ class ImageAnalyzerApp(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle("Llama3.2 Vision Textprompt from Picture")
-        self.setGeometry(100, 100, 800, 600)
+        self.setWindowTitle("Prompt from picture with llama3.2-vision")
+        self.setGeometry(100, 100, 600, 400)
 
-        # Hauptlayout
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
 
-        # Bildauswahl und Anzeige in einer ScrollArea (zentriert)
-        self.image_scroll_area = QScrollArea()
+        # Bildauswahl und Anzeige (ohne ScrollArea)
         self.image_label = QLabel("Kein Bild ausgewählt")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setMinimumSize(0, 0)  # Optional: Mindestgröße
-        self.image_scroll_area.setWidget(self.image_label)
-        self.image_scroll_area.setWidgetResizable(True)
-        self.image_scroll_area.setAlignment(Qt.AlignmentFlag.AlignCenter) # Zentriert die ScrollArea
-        layout.addWidget(self.image_scroll_area)
-
-        layout.addItem(QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
+        self.image_label.setFixedHeight(400)  # Höhe auf 400px fixiert
+        layout.addWidget(self.image_label)
 
         self.select_image_button = QPushButton("Bild auswählen")
         self.select_image_button.clicked.connect(self.select_image)
         layout.addWidget(self.select_image_button)
 
-        # Anweisungsauswahl
         self.instruction_label = QLabel("Anweisung:")
         layout.addWidget(self.instruction_label)
 
@@ -51,7 +43,6 @@ class ImageAnalyzerApp(QMainWindow):
         self.load_instructions()
         layout.addWidget(self.instruction_combo)
 
-        # Direkte Anweisungseingabe
         self.custom_instruction_label = QLabel("Oder eigene Anweisung:")
         layout.addWidget(self.custom_instruction_label)
 
@@ -59,22 +50,23 @@ class ImageAnalyzerApp(QMainWindow):
         self.custom_instruction_input.setFixedHeight(50)
         layout.addWidget(self.custom_instruction_input)
 
-        # Analyse Button und Textausgabe
         analyze_layout = QHBoxLayout()
-        self.analyze_button = QPushButton("Textausgabe")
+        self.analyze_button = QPushButton("Bild analysieren")
         self.analyze_button.clicked.connect(self.analyze_image)
         analyze_layout.addWidget(self.analyze_button)
 
         self.text_output = QTextEdit()
         self.text_output.setReadOnly(True)
+        text_options = self.text_output.document().defaultTextOption()
+        text_options.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
+        self.text_output.document().setDefaultTextOption(text_options)
         layout.addWidget(self.text_output)
         layout.addLayout(analyze_layout)
-        layout.addWidget(self.text_output)
 
-        # Button zum Kopieren des Textes
         self.copy_button = QPushButton("Text in Zwischenablage kopieren")
         self.copy_button.clicked.connect(self.copy_text_to_clipboard)
         layout.addWidget(self.copy_button)
+
 
         self.image_path = None
 
@@ -93,43 +85,40 @@ class ImageAnalyzerApp(QMainWindow):
             self.image_path = file_dialog.selectedFiles()[0]
             pixmap = QPixmap(self.image_path)
 
-            if pixmap.width() > self.image_scroll_area.width() or pixmap.height() > self.image_scroll_area.height():
-              scaled_pixmap = pixmap.scaled(self.image_scroll_area.width(), self.image_scroll_area.height(),
-                                            Qt.AspectRatioMode.KeepAspectRatio,
-                                            Qt.TransformationMode.SmoothTransformation)
-            else:
-              scaled_pixmap = pixmap
+            scaled_pixmap = pixmap.scaledToHeight(400, Qt.TransformationMode.SmoothTransformation)
             self.image_label.setPixmap(scaled_pixmap)
-            self.image_label.adjustSize()
 
     def analyze_image(self):
-      if self.image_path:
-        selected_instruction = self.instruction_combo.currentText()
-        custom_instruction = self.custom_instruction_input.toPlainText().strip()
+        if self.image_path:
+            selected_instruction = self.instruction_combo.currentText()
+            custom_instruction = self.custom_instruction_input.toPlainText().strip()
+            instruction = custom_instruction if custom_instruction else selected_instruction
 
-        instruction = custom_instruction if custom_instruction else selected_instruction
+            if not instruction or instruction == "Datei 'anweisungen.txt' nicht gefunden":
+                self.text_output.setText("Bitte eine Anweisung auswählen oder eingeben.")
+                return
 
-        if not instruction or instruction == "Datei 'anweisungen.txt' nicht gefunden":
-            self.text_output.setText("Bitte eine Anweisung auswählen oder eingeben.")
-            return
-        try:
-          self.text_output.setText("Analysiere...")
-          QApplication.processEvents()
-          response = ollama.chat(
-            model='llama3.2-vision',
-            messages=[
-            {
-              'role': 'user',
-              'content': instruction,
-              'images': [self.image_path]
-            }
-          ])
+            try:
+                self.text_output.setText("Analysiere...")
+                QApplication.processEvents()
+                response = ollama.chat(
+                    model='llama3.2-vision',
+                    messages=[
+                        {
+                            'role': 'user',
+                            'content': instruction,
+                            'images': [self.image_path]
+                        }
+                    ]
+                )
+                self.text_output.setText(response['message']['content'])
+            except ollama.OllamaError as e:
+                self.text_output.setText(f"Ollama Fehler: {e}")
+            except Exception as e:
+                self.text_output.setText(f"Unerwarteter Fehler: {e}")
 
-          self.text_output.setText(response['message']['content'])
-        except Exception as e:
-          self.text_output.setText(f"Fehler bei der Analyse: {e}")
-      else:
-          self.text_output.setText("Bitte zuerst ein Bild auswählen.")
+        else:
+            self.text_output.setText("Bitte zuerst ein Bild auswählen.")
 
     def copy_text_to_clipboard(self):
         clipboard = QGuiApplication.clipboard()

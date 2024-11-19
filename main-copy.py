@@ -2,8 +2,7 @@ import sys
 import ollama
 from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
                              QVBoxLayout, QWidget, QFileDialog, QComboBox,
-                             QTextEdit, QHBoxLayout, QSpacerItem,
-                             QSizePolicy, QGridLayout)
+                             QTextEdit, QHBoxLayout, QSizePolicy)
 from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption
 from PyQt6.QtCore import Qt, QTimer
 from enum import Enum
@@ -20,62 +19,54 @@ class ImageAnalyzerApp(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle("Bildanalyse mit Ollama")
-        self.setGeometry(100, 100, 1200, 800)
+        self.setWindowTitle("Prompt from picture with llama3.2-vision")
+        self.setGeometry(100, 100, 600, 400)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        layout = QGridLayout(central_widget)
+        layout = QVBoxLayout(central_widget)
 
-        # Linke Seite (Bedienelemente)
-        controls_layout = QVBoxLayout()
+        # Bildauswahl und Anzeige (ohne ScrollArea)
+        self.image_label = QLabel("Kein Bild ausgewählt")
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.image_label.setFixedHeight(400)  # Höhe auf 400px fixiert
+        layout.addWidget(self.image_label)
+
         self.select_image_button = QPushButton("Bild auswählen")
         self.select_image_button.clicked.connect(self.select_image)
-        controls_layout.addWidget(self.select_image_button)
+        layout.addWidget(self.select_image_button)
 
         self.instruction_label = QLabel("Anweisung:")
-        controls_layout.addWidget(self.instruction_label)
+        layout.addWidget(self.instruction_label)
 
         self.instruction_combo = QComboBox()
         self.load_instructions()
-        controls_layout.addWidget(self.instruction_combo)
+        layout.addWidget(self.instruction_combo)
 
         self.custom_instruction_label = QLabel("Oder eigene Anweisung:")
-        controls_layout.addWidget(self.custom_instruction_label)
+        layout.addWidget(self.custom_instruction_label)
 
         self.custom_instruction_input = QTextEdit()
         self.custom_instruction_input.setFixedHeight(50)
-        controls_layout.addWidget(self.custom_instruction_input)
+        layout.addWidget(self.custom_instruction_input)
 
-        self.analyze_button = QPushButton("Textausgabe")
+        analyze_layout = QHBoxLayout()
+        self.analyze_button = QPushButton("Bild analysieren")
         self.analyze_button.clicked.connect(self.analyze_image)
-        controls_layout.addWidget(self.analyze_button)
-
-        controls_layout.addItem(QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
-        layout.addLayout(controls_layout, 0, 0)
-
-        # Rechte Seite (Bild und Textausgabe)
-        image_text_layout = QVBoxLayout()
-
-        self.image_label = QLabel("Kein Bild ausgewählt")
-        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Ignored)
-        self.image_label.setMinimumSize(100, 100)
-        image_text_layout.addWidget(self.image_label)
+        analyze_layout.addWidget(self.analyze_button)
 
         self.text_output = QTextEdit()
         self.text_output.setReadOnly(True)
         text_options = self.text_output.document().defaultTextOption()
         text_options.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
         self.text_output.document().setDefaultTextOption(text_options)
-        image_text_layout.addWidget(self.text_output)
+        layout.addWidget(self.text_output)
+        layout.addLayout(analyze_layout)
 
-        layout.addLayout(image_text_layout, 0, 1)
-
-        # Button zum Kopieren des Textes
         self.copy_button = QPushButton("Text in Zwischenablage kopieren")
         self.copy_button.clicked.connect(self.copy_text_to_clipboard)
-        layout.addWidget(self.copy_button, 1, 1)
+        layout.addWidget(self.copy_button)
+
 
         self.image_path = None
 
@@ -94,11 +85,8 @@ class ImageAnalyzerApp(QMainWindow):
             self.image_path = file_dialog.selectedFiles()[0]
             pixmap = QPixmap(self.image_path)
 
-            max_width = 700
-            max_height = 700
-            scaled_pixmap = pixmap.scaled(max_width, max_height, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+            scaled_pixmap = pixmap.scaledToHeight(400, Qt.TransformationMode.SmoothTransformation)
             self.image_label.setPixmap(scaled_pixmap)
-
 
     def analyze_image(self):
         if self.image_path:
