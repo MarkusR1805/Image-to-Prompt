@@ -57,7 +57,7 @@ class ImageAnalyzerApp(QMainWindow):
 
         self.text_output = QTextEdit()
         self.text_output.setReadOnly(True)
-        self.custom_instruction_input.setFixedHeight(100)
+        self.text_output.setFixedHeight(100)
         text_options = self.text_output.document().defaultTextOption()
         text_options.setWrapMode(QTextOption.WrapMode.WrapAtWordBoundaryOrAnywhere)
         self.text_output.document().setDefaultTextOption(text_options)
