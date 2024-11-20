@@ -29,7 +29,7 @@ class ImageAnalyzerApp(QMainWindow):
         # Bildauswahl und Anzeige (ohne ScrollArea)
         self.image_label = QLabel("Kein Bild ausgewählt")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setFixedHeight(400)  # Höhe auf 400px fixiert
+        self.image_label.setFixedHeight(300)  # Höhe auf 400px fixiert
         layout.addWidget(self.image_label)
 
         self.select_image_button = QPushButton("Bild auswählen")
