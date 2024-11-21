@@ -6,6 +6,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
 from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption
 from PyQt6.QtCore import Qt, QTimer
 from enum import Enum
+import os
 
 class CopyState(Enum):
     READY = 0
@@ -68,7 +69,6 @@ class ImageAnalyzerApp(QMainWindow):
         self.copy_button.clicked.connect(self.copy_text_to_clipboard)
         layout.addWidget(self.copy_button)
 
-
         self.image_path = None
 
     def load_instructions(self):
@@ -113,6 +113,7 @@ class ImageAnalyzerApp(QMainWindow):
                     ]
                 )
                 self.text_output.setText(response['message']['content'])
+                self.save_text_to_file(response['message']['content'])
             except ollama.OllamaError as e:
                 self.text_output.setText(f"Ollama Fehler: {e}")
             except Exception as e:
@@ -120,6 +121,15 @@ class ImageAnalyzerApp(QMainWindow):
 
         else:
             self.text_output.setText("Bitte zuerst ein Bild auswählen.")
+
+    def save_text_to_file(self, text):
+        file_path = "llama-vision.txt"
+        if os.path.exists(file_path):
+            mode = 'a'  # append if file exists
+        else:
+            mode = 'w'  # write if file does not exist
+        with open(file_path, mode) as file:
+            file.write(text + "\n")
 
     def copy_text_to_clipboard(self):
         clipboard = QGuiApplication.clipboard()
