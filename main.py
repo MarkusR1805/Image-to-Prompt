@@ -30,7 +30,7 @@ class ImageAnalyzerApp(QMainWindow):
         # Bildauswahl und Anzeige (ohne ScrollArea)
         self.image_label = QLabel("Kein Bild ausgewählt")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setFixedHeight(300)  # Höhe auf 400px fixiert
+        self.image_label.setFixedHeight(400)  # Höhe auf 400px fixiert
         layout.addWidget(self.image_label)
 
         self.select_image_button = QPushButton("Bild auswählen")
@@ -86,8 +86,10 @@ class ImageAnalyzerApp(QMainWindow):
             self.image_path = file_dialog.selectedFiles()[0]
             pixmap = QPixmap(self.image_path)
 
-            scaled_pixmap = pixmap.scaledToHeight(400, Qt.TransformationMode.SmoothTransformation)
+            # Bild skalieren, um in das Label zu passen, ohne die Seitenverhältnisse zu verzerren
+            scaled_pixmap = pixmap.scaled(self.image_label.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
             self.image_label.setPixmap(scaled_pixmap)
+            self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def analyze_image(self):
         if self.image_path:
