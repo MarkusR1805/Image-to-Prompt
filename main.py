@@ -13,10 +13,16 @@ class CopyState(Enum):
     SUCCESS = 1
     ERROR = 2
 
+class AnalyzeState(Enum):
+    READY = 0
+    SUCCESS = 1
+    ERROR = 2
+
 class ImageAnalyzerApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.copy_state = CopyState.READY
+        self.analyze_state = AnalyzeState.READY
         self.initUI()
 
     def initUI(self):
@@ -30,7 +36,7 @@ class ImageAnalyzerApp(QMainWindow):
         # Bildauswahl und Anzeige (ohne ScrollArea)
         self.image_label = QLabel("Kein Bild ausgewählt")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setFixedHeight(300)  # Höhe auf 400px fixiert
+        self.image_label.setFixedHeight(300)  # Höhe auf 300px fixiert
         layout.addWidget(self.image_label)
 
         self.select_image_button = QPushButton("Bild auswählen")
@@ -41,9 +47,8 @@ class ImageAnalyzerApp(QMainWindow):
         layout.addWidget(self.instruction_label)
 
         self.instruction_combo = QComboBox()
-        # hier teste ich etwas
-        self.instruction_combo.setMinimumHeight(50) # Höhe für zweizeilige Anzeige
-        self.instruction_combo.setMaximumWidth(600) # Maximale Breite hinzugefügt
+        self.instruction_combo.setMinimumHeight(50)  # Höhe für zweizeilige Anzeige
+        self.instruction_combo.setMaximumWidth(600)  # Maximale Breite hinzugefügt
         self.load_instructions()
         layout.addWidget(self.instruction_combo)
 
@@ -102,6 +107,9 @@ class ImageAnalyzerApp(QMainWindow):
 
             if not instruction or instruction == "Datei 'anweisungen.txt' nicht gefunden":
                 self.text_output.setText("Bitte eine Anweisung auswählen oder eingeben.")
+                self.analyze_state = AnalyzeState.ERROR
+                self.update_analyze_button_style()
+                QTimer.singleShot(2000, self.reset_analyze_button_style)
                 return
 
             try:
@@ -119,13 +127,20 @@ class ImageAnalyzerApp(QMainWindow):
                 )
                 self.text_output.setText(response['message']['content'])
                 self.save_text_to_file(response['message']['content'])
+                self.analyze_state = AnalyzeState.SUCCESS
             except ollama.OllamaError as e:
                 self.text_output.setText(f"Ollama Fehler: {e}")
+                self.analyze_state = AnalyzeState.ERROR
             except Exception as e:
                 self.text_output.setText(f"Unerwarteter Fehler: {e}")
+                self.analyze_state = AnalyzeState.ERROR
 
         else:
             self.text_output.setText("Bitte zuerst ein Bild auswählen.")
+            self.analyze_state = AnalyzeState.ERROR
+
+        self.update_analyze_button_style()
+        QTimer.singleShot(2000, self.reset_analyze_button_style)
 
     def save_text_to_file(self, text):
         file_path = "llama-vision.txt"
@@ -158,6 +173,18 @@ class ImageAnalyzerApp(QMainWindow):
     def reset_copy_button_style(self):
         self.copy_state = CopyState.READY
         self.update_copy_button_style()
+
+    def update_analyze_button_style(self):
+        if self.analyze_state == AnalyzeState.SUCCESS:
+            self.analyze_button.setStyleSheet("background-color: green; color: white;")
+        elif self.analyze_state == AnalyzeState.ERROR:
+            self.analyze_button.setStyleSheet("background-color: red; color: white;")
+        else:
+            self.analyze_button.setStyleSheet("")
+
+    def reset_analyze_button_style(self):
+        self.analyze_state = AnalyzeState.READY
+        self.update_analyze_button_style()
 
 def main():
     app = QApplication(sys.argv)
