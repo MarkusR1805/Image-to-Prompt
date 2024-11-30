@@ -1,7 +1,4 @@
 <div align=center><h1>Prompt from picture with llama3.2-vision</h1></div>
-<p align="center">
-  <img src="https://der-zerfleischer.de/images/github/pg1.jpeg" />
-</p>
 
 ## This program now has a GUI with a button for the clipboard.
 
@@ -14,10 +11,6 @@ Install llama3.2-vision
 ollama pull llama3.2-vision
 ```
 
-<p align="center">
-  <img src="https://der-zerfleischer.de/images/github/pg2.png" />
-</p>
-
 Install Git
 <https://git-scm.com/downloads>
 
@@ -29,8 +22,6 @@ Install Python
 ```sh
 git clone https://github.com/MarkusR1805/llama3.2-Vision.git
 ```
-
-<img src="https://image.civitai.com/xG1nkqKTMzGDvpLrqFT7WA/c5769d49-f39a-4b84-9d27-b20ee9e625ba/original=true,quality=90/2024-10-26-163521.jpeg" alt="swirl, smoke, surreal, woman, portrait" title="Promptgenerator"/>
 
 <h2>OPTIONAL!! Create python venv</h2>
 
