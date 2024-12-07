@@ -2,6 +2,5 @@
 /include
 /lib
 llama-vision.txt
-output.txt
 pyvenv.cfg
 .DS_Store
