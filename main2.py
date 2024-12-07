@@ -1,8 +1,10 @@
 import sys
 import ollama
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
-                             QVBoxLayout, QWidget, QFileDialog, QComboBox,
-                             QTextEdit, QHBoxLayout, QSizePolicy)
+from PyQt6.QtWidgets import (
+    QApplication, QMainWindow, QLabel, QPushButton,
+    QVBoxLayout, QWidget, QFileDialog, QComboBox,
+    QTextEdit, QHBoxLayout, QDialog, QDialogButtonBox
+)
 from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption
 from PyQt6.QtCore import Qt, QTimer
 from enum import Enum
@@ -18,6 +20,32 @@ class AnalyzeState(Enum):
     SUCCESS = 1
     ERROR = 2
 
+class TextEditDialog(QDialog):
+    def __init__(self, initial_text, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Text bearbeiten")
+        self.setModal(True)
+        self.edited_text = None
+
+        # Layout erstellen
+        layout = QVBoxLayout()
+
+        # Textedit-Feld
+        self.text_edit = QTextEdit()
+        self.text_edit.setPlainText(initial_text)
+        layout.addWidget(self.text_edit)
+
+        # Dialog-Schaltflächen (OK und Abbrechen)
+        self.button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+        layout.addWidget(self.button_box)
+
+        self.setLayout(layout)
+
+    def get_text(self):
+        return self.text_edit.toPlainText()
+
 class ImageAnalyzerApp(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -27,7 +55,8 @@ class ImageAnalyzerApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de")
-        self.setGeometry(100, 100, 600, 400)
+        # self.setGeometry(100, 100, 600, 600)  # Höhe erhöht, um Platz für Dialog
+        self.setFixedSize(600, 665)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -36,7 +65,7 @@ class ImageAnalyzerApp(QMainWindow):
         # Bildauswahl und Anzeige
         self.image_label = QLabel("Kein Bild ausgewählt")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setFixedHeight(300)
+        self.image_label.setFixedHeight(200)
         layout.addWidget(self.image_label)
 
         self.select_image_button = QPushButton("Bild auswählen")
@@ -51,6 +80,7 @@ class ImageAnalyzerApp(QMainWindow):
         self.model_combo.addItems(['llama3.2-vision', 'llava:7b'])
         layout.addWidget(self.model_combo)
 
+        # Anweisungen auswählen oder eigene eingeben
         self.instruction_label = QLabel("Anweisung:")
         layout.addWidget(self.instruction_label)
 
@@ -67,6 +97,7 @@ class ImageAnalyzerApp(QMainWindow):
         self.custom_instruction_input.setFixedHeight(50)
         layout.addWidget(self.custom_instruction_input)
 
+        # Analyse-Button und Output
         analyze_layout = QHBoxLayout()
         self.analyze_button = QPushButton("Bild analysieren")
         self.analyze_button.clicked.connect(self.analyze_image)
@@ -81,6 +112,7 @@ class ImageAnalyzerApp(QMainWindow):
         layout.addWidget(self.text_output)
         layout.addLayout(analyze_layout)
 
+        # Copy-Button
         self.copy_button = QPushButton("Text in Zwischenablage kopieren")
         self.copy_button.clicked.connect(self.copy_text_to_clipboard)
         layout.addWidget(self.copy_button)
@@ -89,9 +121,12 @@ class ImageAnalyzerApp(QMainWindow):
 
     def load_instructions(self):
         try:
-            with open("anweisungen.txt", "r") as f:
-                instructions = f.read().split("\n\n")
-                self.instruction_combo.addItems(instructions)
+            with open("anweisungen.txt", "r", encoding='utf-8') as f:
+                instructions = [instr.strip() for instr in f.read().split("\n\n") if instr.strip()]
+                if instructions:
+                    self.instruction_combo.addItems(instructions)
+                else:
+                    self.instruction_combo.addItems(["Keine Anweisungen gefunden in 'anweisungen.txt'"])
         except FileNotFoundError:
             self.instruction_combo.addItems(["Datei 'anweisungen.txt' nicht gefunden"])
 
@@ -101,9 +136,11 @@ class ImageAnalyzerApp(QMainWindow):
         if file_dialog.exec():
             self.image_path = file_dialog.selectedFiles()[0]
             pixmap = QPixmap(self.image_path)
-            scaled_pixmap = pixmap.scaled(self.image_label.size(),
-                                        Qt.AspectRatioMode.KeepAspectRatio,
-                                        Qt.TransformationMode.SmoothTransformation)
+            scaled_pixmap = pixmap.scaled(
+                self.image_label.size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
             self.image_label.setPixmap(scaled_pixmap)
             self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -114,7 +151,7 @@ class ImageAnalyzerApp(QMainWindow):
             instruction = custom_instruction if custom_instruction else selected_instruction
             selected_model = self.model_combo.currentText()
 
-            if not instruction or instruction == "Datei 'anweisungen.txt' nicht gefunden":
+            if not instruction or instruction in ["Datei 'anweisungen.txt' nicht gefunden", "Keine Anweisungen gefunden in 'anweisungen.txt'"]:
                 self.text_output.setText("Bitte eine Anweisung auswählen oder eingeben.")
                 self.analyze_state = AnalyzeState.ERROR
                 self.update_analyze_button_style()
@@ -134,10 +171,22 @@ class ImageAnalyzerApp(QMainWindow):
                         }
                     ]
                 )
-                self.text_output.setText(response['message']['content'])
-                self.save_text_to_file(response['message']['content'])
-                self.analyze_state = AnalyzeState.SUCCESS
-            except ollama._types.ResponseError as e:
+                generated_text = response['message']['content']
+
+                # Dialog zum Bearbeiten des Textes öffnen
+                dialog = TextEditDialog(generated_text, self)
+                result = dialog.exec()
+
+                if result == QDialog.DialogCode.Accepted:
+                    edited_text = dialog.get_text()
+                    self.text_output.setText(edited_text)
+                    self.save_text_to_file(edited_text)
+                    self.analyze_state = AnalyzeState.SUCCESS
+                else:
+                    self.text_output.setText("Analyse abgebrochen oder kein Text übernommen.")
+                    self.analyze_state = AnalyzeState.ERROR
+
+            except ollama.OllamaError as e:
                 self.text_output.setText(f"Ollama Fehler: {e}")
                 self.analyze_state = AnalyzeState.ERROR
             except Exception as e:
@@ -153,12 +202,11 @@ class ImageAnalyzerApp(QMainWindow):
 
     def save_text_to_file(self, text):
         file_path = "llama-vision.txt"
-        if os.path.exists(file_path):
-            mode = 'a'
-        else:
-            mode = 'w'
-        with open(file_path, mode) as file:
-            file.write(text + "\n")
+        try:
+            with open(file_path, 'a', encoding='utf-8') as file:
+                file.write(text + "\n")
+        except Exception as e:
+            self.text_output.setText(f"Fehler beim Speichern der Datei: {e}")
 
     def copy_text_to_clipboard(self):
         clipboard = QGuiApplication.clipboard()
