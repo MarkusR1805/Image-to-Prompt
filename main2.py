@@ -26,7 +26,7 @@ class ImageAnalyzerApp(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.setWindowTitle("Prompt from picture with AI Models | from www.der-zerfleischer.de")
+        self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de")
         self.setGeometry(100, 100, 600, 400)
 
         central_widget = QWidget()

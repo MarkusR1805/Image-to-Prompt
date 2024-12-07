@@ -5,9 +5,3 @@ Create a single text-to-image prompt, without introduction, comments, or tips at
 Create a single 30-word text-to-image prompt, with no introduction, comments, tips, or quotation marks, ending with a period.
 
 Creatively create a single text-to-image prompt, without introduction, comments, tips, or quotation marks, ending with a period.
-
-Describe the picture in detail.
-
-What are the main objects in this picture?
-
-Which colors dominate the picture?
