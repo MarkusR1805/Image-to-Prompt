@@ -5,8 +5,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QWidget, QFileDialog, QComboBox,
     QTextEdit, QHBoxLayout, QDialog, QDialogButtonBox
 )
-from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption, QFont
+from PyQt6.QtCore import Qt, QTimer, QMimeData
 from enum import Enum
 import os
 
@@ -26,6 +26,11 @@ class TextEditDialog(QDialog):
         self.setWindowTitle("Text bearbeiten")
         self.setModal(True)
         self.edited_text = None
+
+        # Schriftart und -größe festlegen
+        font = QFont()
+        font.setPointSize(16)
+        self.setFont(font)
 
         # Layout erstellen
         layout = QVBoxLayout()
@@ -52,11 +57,16 @@ class ImageAnalyzerApp(QMainWindow):
         self.copy_state = CopyState.READY
         self.analyze_state = AnalyzeState.READY
         self.initUI()
+        self.setAcceptDrops(True)
+
+        # Schriftart und -größe festlegen
+        font = QFont()
+        font.setPointSize(16)
+        self.setFont(font)
 
     def initUI(self):
         self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de")
-        # self.setGeometry(100, 100, 600, 600)  # Höhe erhöht, um Platz für Dialog
-        self.setFixedSize(600, 665)
+        self.setFixedSize(600, 685)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -77,7 +87,7 @@ class ImageAnalyzerApp(QMainWindow):
         layout.addWidget(self.model_label)
 
         self.model_combo = QComboBox()
-        self.model_combo.addItems(['llama3.2-vision', 'llava:7b'])
+        self.model_combo.addItems(['llama3.2-vision', 'llava:latest'])
         layout.addWidget(self.model_combo)
 
         # Anweisungen auswählen oder eigene eingeben
@@ -242,6 +252,37 @@ class ImageAnalyzerApp(QMainWindow):
     def reset_analyze_button_style(self):
         self.analyze_state = AnalyzeState.READY
         self.update_analyze_button_style()
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.setDropAction(Qt.DropAction.CopyAction)
+            for url in event.mimeData().urls():
+                file_path = url.toLocalFile()
+                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+                    self.image_path = file_path
+                    pixmap = QPixmap(self.image_path)
+                    scaled_pixmap = pixmap.scaled(
+                        self.image_label.size(),
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation
+                    )
+                    self.image_label.setPixmap(scaled_pixmap)
+                    self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            event.accept()
+        else:
+            event.ignore()
 
 def main():
     app = QApplication(sys.argv)

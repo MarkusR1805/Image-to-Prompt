@@ -4,8 +4,8 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
                              QVBoxLayout, QWidget, QFileDialog, QComboBox,
                              QTextEdit, QHBoxLayout, QSizePolicy, QDialog,
                              QDialogButtonBox, QFormLayout)
-from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption
-from PyQt6.QtCore import Qt, QTimer
+from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption, QFont
+from PyQt6.QtCore import Qt, QTimer, QMimeData
 from enum import Enum
 import os
 
@@ -25,6 +25,11 @@ class TextEditDialog(QDialog):
         self.setWindowTitle("Text bearbeiten")
         self.setModal(True)
         self.edited_text = None
+
+        # Schriftart und -größe festlegen
+        font = QFont()
+        font.setPointSize(16)
+        self.setFont(font)
 
         # Layout erstellen
         layout = QVBoxLayout()
@@ -51,11 +56,16 @@ class ImageAnalyzerApp(QMainWindow):
         self.copy_state = CopyState.READY
         self.analyze_state = AnalyzeState.READY
         self.initUI()
+        self.setAcceptDrops(True)
+
+        # Schriftart und -größe festlegen
+        font = QFont()
+        font.setPointSize(16)
+        self.setFont(font)
 
     def initUI(self):
         self.setWindowTitle("Prompt from picture with llama3.2-vision | from www.der-zerfleischer.de")
-        # self.setGeometry(100, 100, 600, 500)  # Höhe erhöht, um Platz für Dialog
-        self.setFixedSize(600, 605)
+        self.setFixedSize(600, 620)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -64,7 +74,7 @@ class ImageAnalyzerApp(QMainWindow):
         # Bildauswahl und Anzeige (ohne ScrollArea)
         self.image_label = QLabel("Kein Bild ausgewählt")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.image_label.setFixedHeight(200)  # Höhe auf 300px fixiert
+        self.image_label.setFixedHeight(200)
         layout.addWidget(self.image_label)
 
         self.select_image_button = QPushButton("Bild auswählen")
@@ -75,8 +85,8 @@ class ImageAnalyzerApp(QMainWindow):
         layout.addWidget(self.instruction_label)
 
         self.instruction_combo = QComboBox()
-        self.instruction_combo.setMinimumHeight(50)  # Höhe für zweizeilige Anzeige
-        self.instruction_combo.setMaximumWidth(600)  # Maximale Breite hinzugefügt
+        self.instruction_combo.setMinimumHeight(50)
+        self.instruction_combo.setMaximumWidth(600)
         self.load_instructions()
         layout.addWidget(self.instruction_combo)
 
@@ -123,12 +133,13 @@ class ImageAnalyzerApp(QMainWindow):
         file_dialog.setNameFilter("Bilder (*.png *.jpg *.jpeg *.bmp)")
         if file_dialog.exec():
             self.image_path = file_dialog.selectedFiles()[0]
-            pixmap = QPixmap(self.image_path)
+            self.load_image()
 
-            # Bild skalieren, um in das Label zu passen, ohne die Seitenverhältnisse zu verzerren
-            scaled_pixmap = pixmap.scaled(self.image_label.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-            self.image_label.setPixmap(scaled_pixmap)
-            self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    def load_image(self):
+        pixmap = QPixmap(self.image_path)
+        scaled_pixmap = pixmap.scaled(self.image_label.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        self.image_label.setPixmap(scaled_pixmap)
+        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def analyze_image(self):
         if self.image_path:
@@ -158,7 +169,6 @@ class ImageAnalyzerApp(QMainWindow):
                 )
                 generated_text = response['message']['content']
 
-                # Dialog zum Bearbeiten des Textes öffnen
                 dialog = TextEditDialog(generated_text, self)
                 result = dialog.exec()
 
@@ -227,6 +237,30 @@ class ImageAnalyzerApp(QMainWindow):
     def reset_analyze_button_style(self):
         self.analyze_state = AnalyzeState.READY
         self.update_analyze_button_style()
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dragMoveEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.accept()
+        else:
+            event.ignore()
+
+    def dropEvent(self, event):
+        if event.mimeData().hasUrls():
+            event.setDropAction(Qt.DropAction.CopyAction)
+            for url in event.mimeData().urls():
+                file_path = url.toLocalFile()
+                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')):
+                    self.image_path = file_path
+                    self.load_image()
+            event.accept()
+        else:
+            event.ignore()
 
 def main():
     app = QApplication(sys.argv)
