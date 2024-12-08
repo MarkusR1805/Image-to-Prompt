@@ -87,7 +87,7 @@ class ImageAnalyzerApp(QMainWindow):
         layout.addWidget(self.model_label)
 
         self.model_combo = QComboBox()
-        self.model_combo.addItems(['llama3.2-vision', 'llava'])
+        self.model_combo.addItems(['llama3.2-vision', 'llava:7b'])
         layout.addWidget(self.model_combo)
 
         # Anweisungen auswählen oder eigene eingeben
