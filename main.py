@@ -146,6 +146,7 @@ class ImageAnalyzerApp(QMainWindow):
             selected_instruction = self.instruction_combo.currentText()
             custom_instruction = self.custom_instruction_input.toPlainText().strip()
             instruction = custom_instruction if custom_instruction else selected_instruction
+            selected_model = self.model_combo.currentText()
 
             if not instruction or instruction in ["Datei 'anweisungen.txt' nicht gefunden", "Keine Anweisungen gefunden in 'anweisungen.txt'"]:
                 self.text_output.setText("Bitte eine Anweisung auswählen oder eingeben.")
@@ -158,7 +159,7 @@ class ImageAnalyzerApp(QMainWindow):
                 self.text_output.setText("Analysiere...")
                 QApplication.processEvents()
                 response = ollama.chat(
-                    model='llama3.2-vision:latest',
+                    model=selected_model,
                     messages=[
                         {
                             'role': 'user',
@@ -169,13 +170,18 @@ class ImageAnalyzerApp(QMainWindow):
                 )
                 generated_text = response['message']['content']
 
-                dialog = TextEditDialog(generated_text, self)
+                # Text bereinigen
+                cleaned_text = self.clean_text(generated_text)
+
+                # Dialog zum Bearbeiten des Textes öffnen
+                dialog = TextEditDialog(cleaned_text, self)
                 result = dialog.exec()
 
                 if result == QDialog.DialogCode.Accepted:
                     edited_text = dialog.get_text()
-                    self.text_output.setText(edited_text)
-                    self.save_text_to_file(edited_text)
+                    cleaned_edited_text = self.clean_text(edited_text)  # Bereinigen des bearbeiteten Textes
+                    self.text_output.setText(cleaned_edited_text)
+                    self.save_text_to_file(cleaned_edited_text)
                     self.analyze_state = AnalyzeState.SUCCESS
                 else:
                     self.text_output.setText("Analyse abgebrochen oder kein Text übernommen.")
@@ -194,6 +200,10 @@ class ImageAnalyzerApp(QMainWindow):
 
         self.update_analyze_button_style()
         QTimer.singleShot(2000, self.reset_analyze_button_style)
+
+    def clean_text(self, text):
+        # Entfernt führende und nachfolgende Leerzeichen und Anführungszeichen
+        return text.strip().strip('"')
 
     def save_text_to_file(self, text):
         file_path = "llama-vision.txt"
