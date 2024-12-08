@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QWidget, QFileDialog, QComboBox,
     QTextEdit, QHBoxLayout, QDialog, QDialogButtonBox
 )
-from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption
+from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption, QFont
 from PyQt6.QtCore import Qt, QTimer, QMimeData
 from enum import Enum
 import os
@@ -26,6 +26,11 @@ class TextEditDialog(QDialog):
         self.setWindowTitle("Text bearbeiten")
         self.setModal(True)
         self.edited_text = None
+
+        # Schriftart und -größe festlegen
+        font = QFont()
+        font.setPointSize(16)
+        self.setFont(font)
 
         # Layout erstellen
         layout = QVBoxLayout()
@@ -54,9 +59,14 @@ class ImageAnalyzerApp(QMainWindow):
         self.initUI()
         self.setAcceptDrops(True)
 
+        # Schriftart und -größe festlegen
+        font = QFont()
+        font.setPointSize(16)
+        self.setFont(font)
+
     def initUI(self):
         self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de")
-        self.setFixedSize(600, 665)
+        self.setFixedSize(600, 685)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
