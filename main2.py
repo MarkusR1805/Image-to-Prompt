@@ -47,6 +47,7 @@ class TextEditDialog(QDialog):
         layout.addWidget(self.button_box)
 
         self.setLayout(layout)
+        self.setFixedSize(400, 400) # Dialogfenstergröße
 
     def get_text(self):
         return self.text_edit.toPlainText()
