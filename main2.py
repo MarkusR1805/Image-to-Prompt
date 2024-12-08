@@ -270,7 +270,7 @@ class ImageAnalyzerApp(QMainWindow):
             event.setDropAction(Qt.DropAction.CopyAction)
             for url in event.mimeData().urls():
                 file_path = url.toLocalFile()
-                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', 'webp')): # erlaubte Dateiformate für Drag und Drop
+                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')): # erlaubte Dateiformate für Drag und Drop
                     self.image_path = file_path
                     pixmap = QPixmap(self.image_path)
                     scaled_pixmap = pixmap.scaled(
