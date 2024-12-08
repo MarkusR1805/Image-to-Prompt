@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
                              QVBoxLayout, QWidget, QFileDialog, QComboBox,
                              QTextEdit, QHBoxLayout, QSizePolicy, QDialog,
                              QDialogButtonBox, QFormLayout)
-from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption
+from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption, QFont
 from PyQt6.QtCore import Qt, QTimer, QMimeData
 from enum import Enum
 import os
@@ -25,6 +25,11 @@ class TextEditDialog(QDialog):
         self.setWindowTitle("Text bearbeiten")
         self.setModal(True)
         self.edited_text = None
+
+        # Schriftart und -größe festlegen
+        font = QFont()
+        font.setPointSize(16)
+        self.setFont(font)
 
         # Layout erstellen
         layout = QVBoxLayout()
@@ -53,9 +58,14 @@ class ImageAnalyzerApp(QMainWindow):
         self.initUI()
         self.setAcceptDrops(True)
 
+        # Schriftart und -größe festlegen
+        font = QFont()
+        font.setPointSize(16)
+        self.setFont(font)
+
     def initUI(self):
         self.setWindowTitle("Prompt from picture with llama3.2-vision | from www.der-zerfleischer.de")
-        self.setFixedSize(600, 605)
+        self.setFixedSize(600, 620)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
