@@ -158,7 +158,7 @@ class ImageAnalyzerApp(QMainWindow):
                 self.text_output.setText("Analysiere...")
                 QApplication.processEvents()
                 response = ollama.chat(
-                    model='llama3.2-vision',
+                    model='llama3.2-vision:latest',
                     messages=[
                         {
                             'role': 'user',
