@@ -130,7 +130,7 @@ class ImageAnalyzerApp(QMainWindow):
 
     def select_image(self):
         file_dialog = QFileDialog()
-        file_dialog.setNameFilter("Bilder (*.png *.jpg *.jpeg *.bmp *.webp)")
+        file_dialog.setNameFilter("Bilder (*.png *.jpg *.jpeg *.bmp *.webp)") # erlaubte Dateiformate
         if file_dialog.exec():
             self.image_path = file_dialog.selectedFiles()[0]
             self.load_image()
@@ -255,7 +255,7 @@ class ImageAnalyzerApp(QMainWindow):
             event.setDropAction(Qt.DropAction.CopyAction)
             for url in event.mimeData().urls():
                 file_path = url.toLocalFile()
-                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.webp')):
+                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.webp')): # Dateiformate für Drag und Drop
                     self.image_path = file_path
                     self.load_image()
             event.accept()
