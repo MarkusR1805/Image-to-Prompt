@@ -130,7 +130,7 @@ class ImageAnalyzerApp(QMainWindow):
 
     def select_image(self):
         file_dialog = QFileDialog()
-        file_dialog.setNameFilter("Bilder (*.png *.jpg *.jpeg *.bmp *.webp)") # erlaubte Dateiformate
+        file_dialog.setNameFilter("Bilder (*.png *.jpg *.jpeg *.bmp)") # erlaubte Dateiformate
         if file_dialog.exec():
             self.image_path = file_dialog.selectedFiles()[0]
             self.load_image()
