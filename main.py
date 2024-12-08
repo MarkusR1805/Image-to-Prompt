@@ -36,6 +36,7 @@ class TextEditDialog(QDialog):
 
         # Textedit-Feld
         self.text_edit = QTextEdit()
+        # Hier wird der Text ohne Anführungszeichen und Leerzeichen gesetzt
         self.text_edit.setPlainText(initial_text)
         layout.addWidget(self.text_edit)
 
@@ -169,7 +170,16 @@ class ImageAnalyzerApp(QMainWindow):
                 )
                 generated_text = response['message']['content']
 
-                dialog = TextEditDialog(generated_text, self)
+                # Entferne Anführungszeichen und Leerzeichen vom Anfang und Ende
+                cleaned_text = generated_text.strip()
+                if cleaned_text.startswith('"') and cleaned_text.endswith('"'):
+                    cleaned_text = cleaned_text[1:-1].strip()
+                elif cleaned_text.startswith('"'):
+                    cleaned_text = cleaned_text[1:].strip()
+                elif cleaned_text.endswith('"'):
+                    cleaned_text = cleaned_text[:-1].strip()
+
+                dialog = TextEditDialog(cleaned_text, self)
                 result = dialog.exec()
 
                 if result == QDialog.DialogCode.Accepted:
