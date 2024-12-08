@@ -28,7 +28,7 @@ class TextEditDialog(QDialog):
 
         # Schriftart und -größe festlegen
         font = QFont()
-        font.setPointSize(16)
+        font.setPointSize(14)
         self.setFont(font)
 
         # Layout erstellen
@@ -60,7 +60,7 @@ class ImageAnalyzerApp(QMainWindow):
 
         # Schriftart und -größe festlegen
         font = QFont()
-        font.setPointSize(16)
+        font.setPointSize(14)
         self.setFont(font)
 
     def initUI(self):
