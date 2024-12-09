@@ -66,7 +66,7 @@ class ImageAnalyzerApp(QMainWindow):
         self.setFont(font)
 
     def initUI(self):
-        self.setWindowTitle("Prompt from picture with llama3.2-vision | from www.der-zerfleischer.de")
+        self.setWindowTitle("Prompt from picture with llama3.2-vision | from www.der-zerfleischer.de") # ANCHOR Titel
         self.setFixedSize(600, 620)
 
         central_widget = QWidget()
@@ -160,7 +160,7 @@ class ImageAnalyzerApp(QMainWindow):
                 self.text_output.setText("Analysiere...")
                 QApplication.processEvents()
                 response = ollama.chat(
-                    model='llama3.2-vision:latest',
+                    model='llama3.2-vision:latest', # ANCHOR Modell
                     messages=[
                         {
                             'role': 'user',

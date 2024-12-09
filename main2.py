@@ -66,7 +66,7 @@ class ImageAnalyzerApp(QMainWindow):
         self.setFont(font)
 
     def initUI(self):
-        self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de")
+        self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de") # ANCHOR Titel
         self.setFixedSize(600, 685)
 
         central_widget = QWidget()
@@ -87,6 +87,7 @@ class ImageAnalyzerApp(QMainWindow):
         self.model_label = QLabel("Modell auswählen:")
         layout.addWidget(self.model_label)
 
+        # ANCHOR Modelle
         self.model_combo = QComboBox()
         self.model_combo.addItems(['llama3.2-vision:latest', 'llava:7b'])
         layout.addWidget(self.model_combo)
