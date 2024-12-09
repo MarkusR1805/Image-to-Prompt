@@ -97,7 +97,7 @@ class ImageAnalyzerApp(QMainWindow):
         layout.addWidget(self.instruction_label)
 
         self.instruction_combo = QComboBox()
-        self.instruction_combo.setMinimumHeight(50)
+        self.instruction_combo.setMinimumHeight(60)
         self.instruction_combo.setMaximumWidth(650)
         self.load_instructions()
         layout.addWidget(self.instruction_combo)
