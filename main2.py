@@ -67,7 +67,7 @@ class ImageAnalyzerApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de") # ANCHOR Titel
-        self.setFixedSize(600, 685)
+        self.setFixedSize(600, 705)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)

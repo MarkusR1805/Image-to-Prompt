@@ -67,7 +67,7 @@ class ImageAnalyzerApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("Prompt from picture with llama3.2-vision | from www.der-zerfleischer.de") # ANCHOR Titel
-        self.setFixedSize(600, 620)
+        self.setFixedSize(600, 640)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
