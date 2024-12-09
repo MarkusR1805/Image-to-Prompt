@@ -67,7 +67,7 @@ class ImageAnalyzerApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("Prompt from picture with llama3.2-vision | from www.der-zerfleischer.de") # ANCHOR Titel
-        self.setFixedSize(600, 635)
+        self.setFixedSize(700, 635)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -88,7 +88,7 @@ class ImageAnalyzerApp(QMainWindow):
 
         self.instruction_combo = QComboBox()
         self.instruction_combo.setMinimumHeight(50)
-        self.instruction_combo.setMaximumWidth(600)
+        self.instruction_combo.setMaximumWidth(700)
         self.load_instructions()
         layout.addWidget(self.instruction_combo)
 

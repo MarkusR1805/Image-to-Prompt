@@ -67,7 +67,7 @@ class ImageAnalyzerApp(QMainWindow):
 
     def initUI(self):
         self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de") # ANCHOR Titel
-        self.setFixedSize(650, 700)
+        self.setFixedSize(700, 700)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -97,8 +97,8 @@ class ImageAnalyzerApp(QMainWindow):
         layout.addWidget(self.instruction_label)
 
         self.instruction_combo = QComboBox()
-        self.instruction_combo.setMinimumHeight(80)
-        self.instruction_combo.setMaximumWidth(650)
+        self.instruction_combo.setMinimumHeight(50)
+        self.instruction_combo.setMaximumWidth(700)
         self.load_instructions()
         layout.addWidget(self.instruction_combo)
 
