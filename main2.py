@@ -113,6 +113,7 @@ class ImageAnalyzerApp(QMainWindow):
         analyze_layout = QHBoxLayout()
         self.analyze_button = QPushButton("Bild analysieren")
         self.analyze_button.clicked.connect(self.analyze_image)
+        self.analyze_button.setFont(QFont('', 18))
         analyze_layout.addWidget(self.analyze_button)
 
         self.text_output = QTextEdit()
@@ -127,6 +128,7 @@ class ImageAnalyzerApp(QMainWindow):
         # Copy-Button
         self.copy_button = QPushButton("Text in Zwischenablage kopieren")
         self.copy_button.clicked.connect(self.copy_text_to_clipboard)
+        self.copy_button.setFont(QFont('', 18))
         layout.addWidget(self.copy_button)
 
         self.image_path = None
