@@ -2,7 +2,7 @@
 
 ## This program now has a GUI with a button for the clipboard.
 
-<div style align="center" src="https://der-zerfleischer.de/images/tearsofsun.png"</div>
+![Alt-Text](https://der-zerfleischer.de/images/tearsofsun.png "Der Zerfleischer")
 
 Install Ollama
 <http://ollama.com>
