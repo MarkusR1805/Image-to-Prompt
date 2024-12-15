@@ -1,4 +1,4 @@
-<div align=center><h1>Prompt from picture with llama3.2-vision</h1></div>
+<div align=center><h1>Prompt from picture with llama3.2-vision and llava</h1></div>
 
 ## This program now has a GUI with a button for the clipboard.
 
