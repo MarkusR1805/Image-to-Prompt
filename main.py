@@ -1,9 +1,10 @@
 import sys
 import ollama
-from PyQt6.QtWidgets import (QApplication, QMainWindow, QLabel, QPushButton,
-                             QVBoxLayout, QWidget, QFileDialog, QComboBox,
-                             QTextEdit, QHBoxLayout, QSizePolicy, QDialog,
-                             QDialogButtonBox, QFormLayout)
+from PyQt6.QtWidgets import (
+    QApplication, QMainWindow, QLabel, QPushButton,
+    QVBoxLayout, QWidget, QFileDialog, QComboBox,
+    QTextEdit, QHBoxLayout, QDialog, QDialogButtonBox
+)
 from PyQt6.QtGui import QPixmap, QGuiApplication, QTextOption, QFont
 from PyQt6.QtCore import Qt, QTimer, QMimeData
 from enum import Enum
@@ -36,7 +37,6 @@ class TextEditDialog(QDialog):
 
         # Textedit-Feld
         self.text_edit = QTextEdit()
-        # Hier wird der Text ohne Anführungszeichen und Leerzeichen gesetzt
         self.text_edit.setPlainText(initial_text)
         layout.addWidget(self.text_edit)
 
@@ -66,14 +66,14 @@ class ImageAnalyzerApp(QMainWindow):
         self.setFont(font)
 
     def initUI(self):
-        self.setWindowTitle("Prompt from picture with llama3.2-vision | from www.der-zerfleischer.de") # ANCHOR Titel
-        self.setFixedSize(700, 620)
+        self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de") # ANCHOR Titel
+        self.setFixedSize(700, 685)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
 
-        # Bildauswahl und Anzeige (ohne ScrollArea)
+        # Bildauswahl und Anzeige
         self.image_label = QLabel("Kein Bild ausgewählt")
         self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.image_label.setFixedHeight(200)
@@ -83,6 +83,16 @@ class ImageAnalyzerApp(QMainWindow):
         self.select_image_button.clicked.connect(self.select_image)
         layout.addWidget(self.select_image_button)
 
+        # Modellauswahl
+        self.model_label = QLabel("Modell auswählen:")
+        layout.addWidget(self.model_label)
+
+        # ANCHOR Modelle
+        self.model_combo = QComboBox()
+        self.model_combo.addItems(['llama3.2-vision:latest', 'llava:7b'])
+        layout.addWidget(self.model_combo)
+
+        # Anweisungen auswählen oder eigene eingeben
         self.instruction_label = QLabel("Anweisung:")
         layout.addWidget(self.instruction_label)
 
@@ -99,6 +109,7 @@ class ImageAnalyzerApp(QMainWindow):
         self.custom_instruction_input.setFixedHeight(50)
         layout.addWidget(self.custom_instruction_input)
 
+        # Analyse-Button und Output
         analyze_layout = QHBoxLayout()
         self.analyze_button = QPushButton("Bild analysieren")
         self.analyze_button.clicked.connect(self.analyze_image)
@@ -114,6 +125,7 @@ class ImageAnalyzerApp(QMainWindow):
         layout.addWidget(self.text_output)
         layout.addLayout(analyze_layout)
 
+        # Copy-Button
         self.copy_button = QPushButton("Text in Zwischenablage kopieren")
         self.copy_button.clicked.connect(self.copy_text_to_clipboard)
         self.copy_button.setFont(QFont('', 16))
@@ -137,19 +149,21 @@ class ImageAnalyzerApp(QMainWindow):
         file_dialog.setNameFilter("Bilder (*.png *.jpg *.jpeg *.bmp)") # erlaubte Dateiformate
         if file_dialog.exec():
             self.image_path = file_dialog.selectedFiles()[0]
-            self.load_image()
-
-    def load_image(self):
-        pixmap = QPixmap(self.image_path)
-        scaled_pixmap = pixmap.scaled(self.image_label.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
-        self.image_label.setPixmap(scaled_pixmap)
-        self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            pixmap = QPixmap(self.image_path)
+            scaled_pixmap = pixmap.scaled(
+                self.image_label.size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
+            self.image_label.setPixmap(scaled_pixmap)
+            self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def analyze_image(self):
         if self.image_path:
             selected_instruction = self.instruction_combo.currentText()
             custom_instruction = self.custom_instruction_input.toPlainText().strip()
             instruction = custom_instruction if custom_instruction else selected_instruction
+            selected_model = self.model_combo.currentText()
 
             if not instruction or instruction in ["Datei 'anweisungen.txt' nicht gefunden", "Keine Anweisungen gefunden in 'anweisungen.txt'"]:
                 self.text_output.setText("Bitte eine Anweisung auswählen oder eingeben.")
@@ -162,7 +176,7 @@ class ImageAnalyzerApp(QMainWindow):
                 self.text_output.setText("Analysiere...")
                 QApplication.processEvents()
                 response = ollama.chat(
-                    model='llama3.2-vision:latest', # ANCHOR Modell
+                    model=selected_model,
                     messages=[
                         {
                             'role': 'user',
@@ -173,22 +187,18 @@ class ImageAnalyzerApp(QMainWindow):
                 )
                 generated_text = response['message']['content']
 
-                # Entferne Anführungszeichen und Leerzeichen vom Anfang und Ende
-                cleaned_text = generated_text.strip()
-                if cleaned_text.startswith('"') and cleaned_text.endswith('"'):
-                    cleaned_text = cleaned_text[1:-1].strip()
-                elif cleaned_text.startswith('"'):
-                    cleaned_text = cleaned_text[1:].strip()
-                elif cleaned_text.endswith('"'):
-                    cleaned_text = cleaned_text[:-1].strip()
+                # Text bereinigen
+                cleaned_text = self.clean_text(generated_text)
 
+                # Dialog zum Bearbeiten des Textes öffnen
                 dialog = TextEditDialog(cleaned_text, self)
                 result = dialog.exec()
 
                 if result == QDialog.DialogCode.Accepted:
                     edited_text = dialog.get_text()
-                    self.text_output.setText(edited_text)
-                    self.save_text_to_file(edited_text)
+                    cleaned_edited_text = self.clean_text(edited_text)  # Bereinigen des bearbeiteten Textes
+                    self.text_output.setText(cleaned_edited_text)
+                    self.save_text_to_file(cleaned_edited_text)
                     self.analyze_state = AnalyzeState.SUCCESS
                 else:
                     self.text_output.setText("Analyse abgebrochen oder kein Text übernommen.")
@@ -207,6 +217,10 @@ class ImageAnalyzerApp(QMainWindow):
 
         self.update_analyze_button_style()
         QTimer.singleShot(2000, self.reset_analyze_button_style)
+
+    def clean_text(self, text):
+        # Entfernt führende und nachfolgende Leerzeichen und Anführungszeichen
+        return text.strip().strip('"')
 
     def save_text_to_file(self, text):
         file_path = "llama-vision.txt"
@@ -268,9 +282,16 @@ class ImageAnalyzerApp(QMainWindow):
             event.setDropAction(Qt.DropAction.CopyAction)
             for url in event.mimeData().urls():
                 file_path = url.toLocalFile()
-                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')): # Dateiformate für Drag und Drop
+                if file_path.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp')): # erlaubte Dateiformate für Drag und Drop
                     self.image_path = file_path
-                    self.load_image()
+                    pixmap = QPixmap(self.image_path)
+                    scaled_pixmap = pixmap.scaled(
+                        self.image_label.size(),
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation
+                    )
+                    self.image_label.setPixmap(scaled_pixmap)
+                    self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             event.accept()
         else:
             event.ignore()
