@@ -2,10 +2,6 @@
 
 ## This program now has a GUI with a button for the clipboard.
 
-<p align="center>
-    <img src="https://der-zerfleischer.de/images/tearsofsun.png" />
-</p>
-
 Install Ollama
 <http://ollama.com>
 
