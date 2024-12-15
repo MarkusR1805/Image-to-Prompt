@@ -29,8 +29,8 @@ git clone https://github.com/MarkusR1805/Image-to-Prompt.git
 <h2>OPTIONAL!! Create python venv</h2>
 
 ```sh
-python -m venv llama3.2-vision
-cd llama3.2-vision
+python -m venv image-to-prompt
+cd image-to-prompt
 source bin/activate
 ```
 
