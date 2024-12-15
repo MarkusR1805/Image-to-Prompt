@@ -23,7 +23,7 @@ Install Python
 <h2>Clone Repository</h2>
 
 ```sh
-git clone https://github.com/MarkusR1805/llama3.2-Vision.git
+git clone https://github.com/MarkusR1805/Image-to-Prompt.git
 ```
 
 <h2>OPTIONAL!! Create python venv</h2>
