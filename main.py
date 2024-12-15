@@ -1,3 +1,4 @@
+# LLama3.2-Vision and Llava Models
 import sys
 import ollama
 from PyQt6.QtWidgets import (
