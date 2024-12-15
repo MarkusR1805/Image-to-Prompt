@@ -5,13 +5,7 @@
 Install Ollama
 <http://ollama.com>
 
-For main.py please install llama3.2-vision
-
-```sh
-ollama pull llama3.2-vision
-```
-
-For main2.py please install 2 models
+For main.py please install 2 models
 
 ```sh
 ollama pull llama3.2-vision
