@@ -1,6 +1,6 @@
 <div align=center><h1>Prompt from picture with llama3.2-vision and llava</h1></div>
 
-## This program now has a GUI with a button for the clipboard.
+## The old version ‘main.py’ has been replaced by the former version ‘mai.2.py’! From now on you can select at least 2 vision models, and if you change the code, you can also add more.
 
 Install Ollama
 <http://ollama.com>
