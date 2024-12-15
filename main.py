@@ -1,4 +1,4 @@
-# LLama3.2-Vision and Llava Models
+# Image-to-Prompt
 import sys
 import ollama
 from PyQt6.QtWidgets import (
@@ -46,7 +46,6 @@ class TextEditDialog(QDialog):
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
         layout.addWidget(self.button_box)
-
         self.setLayout(layout)
         self.setFixedSize(400, 400) # Dialogfenstergröße
 
@@ -67,7 +66,7 @@ class ImageAnalyzerApp(QMainWindow):
         self.setFont(font)
 
     def initUI(self):
-        self.setWindowTitle("Prompt from picture with AI-Vision Models | from www.der-zerfleischer.de") # ANCHOR Titel
+        self.setWindowTitle("Image-to-Prompt | from www.der-zerfleischer.de") # ANCHOR Titel
         self.setFixedSize(700, 685)
 
         central_widget = QWidget()
