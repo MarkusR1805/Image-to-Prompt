@@ -1,8 +1,12 @@
-Create a concise, photorealistic, 30-word text-to-image prompt, without quotation marks, or extra formatting, ending with a period.
+Create a text-to-image prompt, without introduction, comments, or tips at the end, without quotation marks, ending with a period.
 
-Create a single text-to-image prompt, without introduction, comments, or tips at the end, without quotation marks, ending with a period.
+Create a photorealistic text-to-image prompt, without quotation marks, or extra formatting, ending with a period.
 
-Create a single 30-word text-to-image prompt, with no introduction, comments, tips, or quotation marks, ending with a period.
+Create a fantasy text-to-image prompt, without quotation marks, or extra formatting, ending with a period.
+
+Create a fairytale text-to-image prompt, without quotation marks, or extra formatting, ending with a period.
+
+Create a single text-to-image prompt, with no introduction, comments, tips, or quotation marks, ending with a period.
 
 Creatively create a single text-to-image prompt, without introduction, comments, tips, or quotation marks, ending with a period.
 
