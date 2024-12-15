@@ -28,7 +28,7 @@ class TextEditDialog(QDialog):
 
         # Schriftart und -größe festlegen
         font = QFont()
-        font.setPointSize(18)
+        font.setPointSize(16)
         self.setFont(font)
 
         # Layout erstellen
@@ -62,12 +62,12 @@ class ImageAnalyzerApp(QMainWindow):
 
         # Schriftart und -größe festlegen
         font = QFont()
-        font.setPointSize(18)
+        font.setPointSize(16)
         self.setFont(font)
 
     def initUI(self):
         self.setWindowTitle("Prompt from picture with llama3.2-vision | from www.der-zerfleischer.de") # ANCHOR Titel
-        self.setFixedSize(700, 635)
+        self.setFixedSize(700, 620)
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -102,7 +102,7 @@ class ImageAnalyzerApp(QMainWindow):
         analyze_layout = QHBoxLayout()
         self.analyze_button = QPushButton("Bild analysieren")
         self.analyze_button.clicked.connect(self.analyze_image)
-        self.analyze_button.setFont(QFont('', 18))
+        self.analyze_button.setFont(QFont('', 16))
         analyze_layout.addWidget(self.analyze_button)
 
         self.text_output = QTextEdit()
@@ -116,7 +116,7 @@ class ImageAnalyzerApp(QMainWindow):
 
         self.copy_button = QPushButton("Text in Zwischenablage kopieren")
         self.copy_button.clicked.connect(self.copy_text_to_clipboard)
-        self.copy_button.setFont(QFont('', 18))
+        self.copy_button.setFont(QFont('', 16))
         layout.addWidget(self.copy_button)
 
         self.image_path = None
