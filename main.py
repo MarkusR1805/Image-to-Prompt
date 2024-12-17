@@ -89,7 +89,7 @@ class ImageAnalyzerApp(QMainWindow):
 
         # ANCHOR Modelle
         self.model_combo = QComboBox()
-        self.model_combo.addItems(['llama3.2-vision:latest', 'llava:7b'])
+        self.model_combo.addItems(['llama3.2-vision:latest'])
         layout.addWidget(self.model_combo)
 
         # Anweisungen auswählen oder eigene eingeben
@@ -157,6 +157,7 @@ class ImageAnalyzerApp(QMainWindow):
             )
             self.image_label.setPixmap(scaled_pixmap)
             self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.text_output.clear() # HIER WIRD DAS TEXTFELD NACH BILD AUSWAHL GELEERT
 
     def analyze_image(self):
         if self.image_path:
@@ -173,6 +174,7 @@ class ImageAnalyzerApp(QMainWindow):
                 return
 
             try:
+                self.text_output.clear() # HIER WIRD DAS TEXTFELD GELEERT
                 self.text_output.setText("Analysiere...")
                 QApplication.processEvents()
                 response = ollama.chat(
@@ -292,6 +294,7 @@ class ImageAnalyzerApp(QMainWindow):
                     )
                     self.image_label.setPixmap(scaled_pixmap)
                     self.image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    self.text_output.clear() # HIER WIRD DAS TEXTFELD NACH DROP GELEERT
             event.accept()
         else:
             event.ignore()
