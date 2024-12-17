@@ -11,7 +11,7 @@ For main.py please install 2 models
 ollama pull llama3.2-vision
 ```
 ```sh
-ollama pull llava:7b
+ollama pull llava:13b
 ```
 
 Install Git
