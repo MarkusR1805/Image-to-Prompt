@@ -89,7 +89,7 @@ class ImageAnalyzerApp(QMainWindow):
 
         # ANCHOR Modelle
         self.model_combo = QComboBox()
-        self.model_combo.addItems(['llama3.2-vision:latest', 'llava:13b'])
+        self.model_combo.addItems(['llama3.2-vision:latest', 'llava:13b','llava13-my:latest'])
         layout.addWidget(self.model_combo)
 
         # Anweisungen auswählen oder eigene eingeben
